@@ -30,7 +30,7 @@ public class RefrainMod
 {
 	public static final String MODID = "refrain";
 	public static final String NAME = "Mending Refrain mod";
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "1.0.1";
 
 	private static Logger logger;
 	private int durabilityDetectionConfig = 16;
@@ -59,8 +59,8 @@ public class RefrainMod
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onLeftClick(InputEvent event) {
-		if (!Minecraft.getMinecraft().gameSettings.keyBindAttack.isPressed()) {
+	public void onLeftClick(InputEvent.MouseInputEvent event) {
+		if (!Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()) {
 			return;
 		}
 		if (Minecraft.getMinecraft().player == null) {
@@ -73,6 +73,7 @@ public class RefrainMod
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		//InventoryPlayer inv = player.inventory;
 		ItemStack heldItem = player.getHeldItemMainhand();
+		if (heldItem.isEmpty() || heldItem.getItem() == null) return;
 		if (heldItem.getItem() instanceof ItemPickaxe) {
 			if (heldItem.getMaxDamage() - heldItem.getItemDamage() < durabilityDetectionConfig) {
 				/*int slotId = 40; // off hand slot id is 40, in default
