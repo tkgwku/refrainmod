@@ -20,7 +20,8 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.InputEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.network.NetworkCheckHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -41,7 +42,7 @@ public class RefrainMod
 		logger = event.getModLog();
 		try {
 			Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-			durabilityDetectionConfig = config.getInt("maxDetectingDurability", "main", 16, 1, 128, "");
+			durabilityDetectionConfig = config.getInt("maxDetectingDurability", "main", 16, 1, 1560, "");
 		} catch (Exception e) {}
 	}
 
@@ -59,7 +60,8 @@ public class RefrainMod
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void onLeftClick(InputEvent.MouseInputEvent event) {
+	public void onClientTick(TickEvent.ClientTickEvent event) {
+		if (!event.phase.equals(Phase.END)) return;
 		if (!Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()) {
 			return;
 		}
@@ -75,26 +77,28 @@ public class RefrainMod
 		ItemStack heldItem = player.getHeldItemMainhand();
 		if (heldItem.isEmpty() || heldItem.getItem() == null) return;
 		if (heldItem.getItem() instanceof ItemPickaxe) {
-			if (heldItem.getMaxDamage() - heldItem.getItemDamage() < durabilityDetectionConfig) {
-				/*int slotId = 40; // off hand slot id is 40, in default
-				ItemStack stack = null;
-				for (int i = 35; i >= 0; i--) {
-					stack = inv.getStackInSlot(i);
-					if (i != inv.currentItem
-							&& stack.getItem() instanceof ItemPickaxe
-							&& stack.getMaxDamage() - stack.getItemDamage() >= 16) {
-						slotId = i;
-						break;
-					}
-					if (i >= 9 && stack.isEmpty()) {
-						slotId = i;
-					}
-				}*/
-				NetHandlerPlayClient connect = ((EntityPlayerSP) player).connection;
-				//connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos.ORIGIN, EnumFacing.DOWN));
-				connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
-				//inv.markDirty();
-				//event.setCanceled(true);
+			if (((ItemPickaxe)heldItem.getItem()).getToolMaterialName() == "DIAMOND") {
+				if (heldItem.getMaxDamage() - heldItem.getItemDamage() < durabilityDetectionConfig) {
+					/*int slotId = 40; // off hand slot id is 40, in default
+					ItemStack stack = null;
+					for (int i = 35; i >= 0; i--) {
+						stack = inv.getStackInSlot(i);
+						if (i != inv.currentItem
+								&& stack.getItem() instanceof ItemPickaxe
+								&& stack.getMaxDamage() - stack.getItemDamage() >= 16) {
+							slotId = i;
+							break;
+						}
+						if (i >= 9 && stack.isEmpty()) {
+							slotId = i;
+						}
+					}*/
+					NetHandlerPlayClient connect = ((EntityPlayerSP) player).connection;
+					//connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos.ORIGIN, EnumFacing.DOWN));
+					connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
+					//inv.markDirty();
+					//event.setCanceled(true);
+				}
 			}
 		}
 	}
