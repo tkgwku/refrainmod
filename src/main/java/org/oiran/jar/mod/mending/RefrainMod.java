@@ -34,7 +34,8 @@ public class RefrainMod
 	public static final String VERSION = "1.0.1";
 
 	private static Logger logger;
-	private int durabilityDetectionConfig = 16;
+	private int durabilityDetectionConfig = 32;
+	private int cooltime = 3;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
@@ -42,7 +43,7 @@ public class RefrainMod
 		logger = event.getModLog();
 		try {
 			Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-			durabilityDetectionConfig = config.getInt("maxDetectingDurability", "main", 16, 1, 1560, "");
+			durabilityDetectionConfig = config.getInt("maxDetectingDurability", "main", 32, 1, 1560, "");
 		} catch (Exception e) {}
 	}
 
@@ -62,6 +63,10 @@ public class RefrainMod
 	@SideOnly(Side.CLIENT)
 	public void onClientTick(TickEvent.ClientTickEvent event) {
 		if (!event.phase.equals(Phase.END)) return;
+		if (cooltime > 0) {
+			cooltime--;
+			return;
+		}
 		if (!Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown()) {
 			return;
 		}
@@ -98,6 +103,7 @@ public class RefrainMod
 					connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
 					//inv.markDirty();
 					//event.setCanceled(true);
+					cooltime = 3;
 				}
 			}
 		}
