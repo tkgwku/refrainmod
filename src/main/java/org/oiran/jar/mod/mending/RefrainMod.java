@@ -35,7 +35,7 @@ public class RefrainMod
 
 	private static Logger logger;
 	private int durabilityDetectionConfig = 24;
-	private String toolMaterialEnabled = "DIAMOND";
+	private String toolMaterialEnabled = "D";
 	private int cooltime = 3;
 
 	@EventHandler
