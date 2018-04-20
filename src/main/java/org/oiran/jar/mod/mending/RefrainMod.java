@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemTool;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -31,10 +31,11 @@ public class RefrainMod
 {
 	public static final String MODID = "refrain";
 	public static final String NAME = "Mending Refrain mod";
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.0.2";
 
 	private static Logger logger;
-	private int durabilityDetectionConfig = 32;
+	private int durabilityDetectionConfig = 24;
+	private String toolMaterialEnabled = "DIAMOND";
 	private int cooltime = 3;
 
 	@EventHandler
@@ -43,7 +44,9 @@ public class RefrainMod
 		logger = event.getModLog();
 		try {
 			Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-			durabilityDetectionConfig = config.getInt("maxDetectingDurability", "main", 32, 1, 1560, "");
+			durabilityDetectionConfig = config.getInt("maxDetectingDurability", "main", durabilityDetectionConfig, 1, 1560, "");
+			toolMaterialEnabled = config.getString("toolMaterialEnabled", "main", "D", "Only initial char is needed. Capitalization is ignored. Using indexOf() for config. For example, 'disw' means tools of all material may be reserved.").toUpperCase();
+			config.save();
 		} catch (Exception e) {}
 	}
 
@@ -81,10 +84,10 @@ public class RefrainMod
 		//InventoryPlayer inv = player.inventory;
 		ItemStack heldItem = player.getHeldItemMainhand();
 		if (heldItem.isEmpty() || heldItem.getItem() == null) return;
-		if (heldItem.getItem() instanceof ItemPickaxe) {
-			if (((ItemPickaxe)heldItem.getItem()).getToolMaterialName() == "DIAMOND") {
-				if (heldItem.getMaxDamage() - heldItem.getItemDamage() < durabilityDetectionConfig) {
-					/*int slotId = 40; // off hand slot id is 40, in default
+		if (heldItem.getItem() instanceof ItemTool
+				&& toolMaterialEnabled.indexOf(((ItemTool) heldItem.getItem()).getToolMaterialName().toUpperCase().charAt(0)) != -1 ) {
+			if (heldItem.getMaxDamage() - heldItem.getItemDamage() < durabilityDetectionConfig) {
+				/*int slotId = 40; // off hand slot id is 40, in default
 					ItemStack stack = null;
 					for (int i = 35; i >= 0; i--) {
 						stack = inv.getStackInSlot(i);
@@ -98,13 +101,12 @@ public class RefrainMod
 							slotId = i;
 						}
 					}*/
-					NetHandlerPlayClient connect = ((EntityPlayerSP) player).connection;
-					//connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos.ORIGIN, EnumFacing.DOWN));
-					connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
-					//inv.markDirty();
-					//event.setCanceled(true);
-					cooltime = 3;
-				}
+				NetHandlerPlayClient connect = ((EntityPlayerSP) player).connection;
+				//connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, BlockPos.ORIGIN, EnumFacing.DOWN));
+				connect.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.SWAP_HELD_ITEMS, BlockPos.ORIGIN, EnumFacing.DOWN));
+				//inv.markDirty();
+				//event.setCanceled(true);
+				cooltime = 3;
 			}
 		}
 	}
