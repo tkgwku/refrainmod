@@ -5,11 +5,12 @@ A simple mod that prevents from breaking pickaxes
 1.12.2
 
 ### Download
-from releases tab
+Go to [releases tab] above
 
 ### Purpose
-This mod allows you to prevent your tools from broken. 
-When you break a block, if the durability of the tool(pickaxe, shovel and axe) is less than certain value, you stop using tool automatically.
+This mod will prevent your tools (pickaxes, shovels, or axes) from being broken.  
+To say precisely, if the durability of the tool is less than certain value, the action will be automatically refrained.
+This mod is advantageous in Survival mode, and especially when you use 'Pickaxe with Mending and Efficiency 5' and beacon for digging.
 
 ### Install
 1. Install Minecraft-Forge
